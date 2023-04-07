@@ -7,10 +7,15 @@ use Illuminate\Http\Request;
 class PagesController extends Controller
 {
     public function home() {
-        return view('index');
+        return view('index', [
+            'title' => 'Home'
+        ]);
     }
 
     public function about() {
-        return view('about', ['nama' => 'Stenly Andika!']);
+        return view('about', [
+            'title' => 'About',
+            'active' => 'about',
+            'nama' => 'Stenly Andika!']);
     }
 }

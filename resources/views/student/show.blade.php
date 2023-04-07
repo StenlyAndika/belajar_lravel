@@ -1,7 +1,5 @@
 @extends('layout/main')
 
-@section('title', 'Student Detail')
-
 @section('container')
     <div class="container">
         <div class="col-6">
@@ -12,6 +10,7 @@
                     <h6 class="card-subtitle mb-2 text-muted">{{ $student->nrp }}</h6>
                     <p class="card-text">{{ $student->email }}</p>
                     <p class="card-text">{{ $student->jurusan }}</p>
+                    <p class="card-text">{{ $student->bio }}</p>
                     <a href="{{ $student->id }}/edit" class="btn btn-primary">Edit</a>
                     <form action="/students/{{ $student->id }}" method="post" class="d-inline">
                         @method('delete')

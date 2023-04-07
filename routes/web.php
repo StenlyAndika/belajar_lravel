@@ -1,8 +1,9 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\LoginController;
 use App\Http\Controllers\PagesController;
-use App\Http\Controllers\MahasiswaController;
+use App\Http\Controllers\RegisterController;
 use App\Http\Controllers\StudentsController;
 /*
 |--------------------------------------------------------------------------
@@ -18,18 +19,12 @@ use App\Http\Controllers\StudentsController;
 Route::get('/', [PagesController::class, 'home']);
 Route::get('/about', [PagesController::class, 'about']);
 
-Route::get('/mahasiswa', [MahasiswaController::class, 'index']);
+Route::get('/register', [RegisterController::class, 'index'])->middleware('guest');
+Route::post('/register', [RegisterController::class, 'store']);
 
-// Route::get('/students', [StudentsController::class, 'index']);
+Route::get('/login', [LoginController::class, 'index'])->name('login')->middleware('guest');
+Route::post('/login', [LoginController::class, 'authenticate']);
+Route::post('/logout', [LoginController::class, 'logout']);
 
-// Route::get('/students/create', [StudentsController::class, 'create']);
-
-// Route::get('/students/{student}', [StudentsController::class, 'show']);
-// Route::post('/students', [StudentsController::class, 'store']);
-
-// Route::delete('/students/{student}', [StudentsController::class, 'destroy']);
-
-// Route::get('/students/{student}/edit', [StudentsController::class, 'edit']);
-// Route::put('/students/{student}', [StudentsController::class, 'update']);
-
-Route::resource('students', StudentsController::class);
+Route::resource('/students', StudentsController::class)->middleware('auth');
+Route::get('/students/checkSlug/{title}', [StudentsController::class, 'checkSlug'])->middleware('auth');

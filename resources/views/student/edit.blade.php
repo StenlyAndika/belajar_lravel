@@ -1,7 +1,5 @@
 @extends('layout/main')
 
-@section('title', 'Student Form')
-
 @section('container')
     <div class="container">
         <div class="col-8">

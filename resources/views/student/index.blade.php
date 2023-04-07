@@ -1,7 +1,5 @@
 @extends('layout/main')
 
-@section('title', 'Students List')
-
 @section('container')
     <div class="container">
         <div class="col-6">

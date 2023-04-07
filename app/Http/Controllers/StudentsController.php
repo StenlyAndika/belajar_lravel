@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Student;
 use Illuminate\Http\Request;
+use Cviebrock\EloquentSluggable\Services\SlugService;
 
 class StudentsController extends Controller
 {
@@ -15,7 +16,11 @@ class StudentsController extends Controller
     public function index()
     {
         $students = Student::all();
-        return view('student.index', ['students' => $students]);
+        return view('student.index', [
+            'title' => 'Students',
+            'active' => 'students',
+            'students' => $students
+        ]);
     }
 
     /**
@@ -25,7 +30,10 @@ class StudentsController extends Controller
      */
     public function create()
     {
-        return view('student.create');
+        return view('student.create', [
+            'title' => 'Create Student',
+            'active' => 'students'
+        ]);
     }
 
     /**
@@ -36,13 +44,6 @@ class StudentsController extends Controller
      */
     public function store(Request $request)
     {
-        // $student = new Student;
-        // $student->nrp = $request->nrp;
-        // $student->nama = $request->nama;
-        // $student->email = $request->email;
-        // $student->jurusan = $request->jurusan;
-        // $student->save();
-
         // Student::create([
         //     'nrp' => $request->nrp,
         //     'nama' => $request->nama,
@@ -70,7 +71,9 @@ class StudentsController extends Controller
      */
     public function show(Student $student)
     {
-        return view('student.show', compact('student'));
+        return view('student.show', [
+            'title' => 'Student Details'
+        ], compact('student'));
     }
 
     /**
@@ -81,7 +84,10 @@ class StudentsController extends Controller
      */
     public function edit(Student $student)
     {
-        return view('student.edit', compact('student'));
+        return view('student.edit', [
+            'title' => 'Student Update',
+            'active' => 'students'
+        ], compact('student'));
     }
 
     /**
@@ -121,5 +127,11 @@ class StudentsController extends Controller
     {
         Student::destroy($student->id);
         return redirect('/students')->with('status', 'student deleted successfully!');
+    }
+
+    public function checkSlug(Request $request)
+    {
+        $slug = SlugService::createSlug(Student::class, 'slug', $request->title);
+        return response()->json(['slug' => $slug]);
     }
 }
