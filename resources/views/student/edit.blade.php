@@ -4,17 +4,9 @@
     <div class="container">
         <div class="col-8">
             <h1 class="mt-3">Student Form</h1>
-            <form method="post" action="/students/{{ $student->id }}">
+            <form method="post" action="/students/{{ $student->slug }}" enctype="multipart/form-data">
                 @method('put')
                 @csrf
-                <div class="form-group">
-                    <input type="text" class="form-control @error('nrp') is-invalid @enderror" name="nrp" placeholder="NRP" value="{{ $student->nrp }}">
-                    @error('nrp')
-                        <div class="invalid-feedback">
-                            {{ $message }}
-                        </div>
-                    @enderror
-                </div>
                 <div class="form-group">
                     <input type="text" class="form-control @error('nama') is-invalid @enderror" name="nama" placeholder="Nama" value="{{ $student->nama }}">
                     @error('nama')
@@ -24,10 +16,46 @@
                     @enderror
                 </div>
                 <div class="form-group">
-                    <input type="text" class="form-control" name="email" placeholder="Email" value="{{ $student->email }}">
+                    <input type="text" class="form-control @error('title') is-invalid @enderror" id="title" name="title" placeholder="Title" value="{{ $student->title }}">
+                    @error('title')
+                        <div class="invalid-feedback">
+                            {{ $message }}
+                        </div>
+                    @enderror
                 </div>
                 <div class="form-group">
-                    <input type="text" class="form-control" name="jurusan" placeholder="Jurusan" value="{{ $student->jurusan }}">
+                    <input type="text" class="form-control @error('slug') is-invalid @enderror" id="slug" name="slug" placeholder="Slug" value="{{ $student->slug }}" readonly>
+                    @error('slug')
+                        <div class="invalid-feedback">
+                            {{ $message }}
+                        </div>
+                    @enderror
+                </div>
+                <div class="form-group">
+                    <input type="text" class="form-control @error('jurusan') is-invalid @enderror" name="jurusan" placeholder="Jurusan" value="{{ $student->jurusan }}">
+                    @error('jurusan')
+                        <div class="invalid-feedback">
+                            {{ $message }}
+                        </div>
+                    @enderror
+                </div>
+                <div class="form-group">
+                    <input type="file" id="image" class="form-control @error('image') is-invalid @enderror" name="image" onchange="previewImage()">
+                    @error('image')
+                        <div class="invalid-feedback">
+                            {{ $message }}
+                        </div>
+                    @enderror
+                    <input type="hidden" name="oldImage" value="{{ $student->image }}">
+                    @if ($student->image)
+                        <img class="img-preview img-fluid col-lg-8 mt-2" src="{{ asset('storage/'.$student->image) }}">
+                    @else
+                        <img class="img-preview img-fluid col-lg-8 mt-2">
+                    @endif
+                </div>
+                <div class="form-group">
+                    <input id="bio" type="hidden" name="bio" value="{{ $student->bio }}">
+                    <trix-editor input="bio"></trix-editor>
                 </div>
                 <div class="form-group">
                     <button type="submit" class="btn btn-primary">Update</button>
@@ -35,4 +63,29 @@
             </form>
         </div>
     </div>
+    <script>
+        const title = document.querySelector('#title');
+        const slugs = document.querySelector('#slug');
+
+        title.addEventListener('keyup', function(e) {
+            fetch('/students/checkSlug/' + title.value)
+            .then(response => response.json())
+            .then(data => slugs.value = data.slug)
+        })
+
+        function previewImage() {
+            const image = document.querySelector('#image');
+            const imagePreview = document.querySelector('.img-preview');
+
+            imagePreview.style.display = 'block';
+
+            const oFReader = new FileReader();
+            oFReader.readAsDataURL(image.files[0]);
+
+            oFReader.onload = function (oFREvent) {
+                imagePreview.src = oFREvent.target.result;
+            }
+        }
+
+    </script>
 @endsection

@@ -3,7 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Models\Student;
+use Illuminate\Support\Str;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 use Cviebrock\EloquentSluggable\Services\SlugService;
 
 class StudentsController extends Controller
@@ -18,7 +20,6 @@ class StudentsController extends Controller
         $students = Student::all();
         return view('student.index', [
             'title' => 'Students',
-            'active' => 'students',
             'students' => $students
         ]);
     }
@@ -31,8 +32,7 @@ class StudentsController extends Controller
     public function create()
     {
         return view('student.create', [
-            'title' => 'Create Student',
-            'active' => 'students'
+            'title' => 'Create Student'
         ]);
     }
 
@@ -44,21 +44,25 @@ class StudentsController extends Controller
      */
     public function store(Request $request)
     {
-        // Student::create([
-        //     'nrp' => $request->nrp,
-        //     'nama' => $request->nama,
-        //     'email' => $request->email,
-        //     'jurusan' => $request->jurusan,
-        // ]);
-
-        $request->validate([
-            'nrp' => 'required|size:9',
+        $rules = [
             'nama' => 'required',
-            'email' => 'required',
             'jurusan' => 'required',
-        ]);
+            'title' => 'required',
+            'bio' => 'required',
+            'slug' => 'required|unique:students',
+            'image' => 'image|file|min:512'
+        ];
 
-        Student::create($request->all());
+        $validatedData = $request->validate($rules);
+
+        if ($request->file('image')) {
+            $validatedData['image'] = $request->file('image')->store('post-images');
+        }
+
+        $validatedData['user_id'] = auth()->user()->id;
+        $validatedData['excerpt'] = Str::limit(strip_tags($request->bio), 200);
+        
+        Student::create($validatedData);
 
         return redirect('/students')->with('status', 'student added successfully!');
     }
@@ -85,8 +89,7 @@ class StudentsController extends Controller
     public function edit(Student $student)
     {
         return view('student.edit', [
-            'title' => 'Student Update',
-            'active' => 'students'
+            'title' => 'Student Update'
         ], compact('student'));
     }
 
@@ -99,20 +102,32 @@ class StudentsController extends Controller
      */
     public function update(Request $request, Student $student)
     {
-        $request->validate([
-            'nrp' => 'required|size:9',
+        $rules = [
             'nama' => 'required',
-            'email' => 'required',
             'jurusan' => 'required',
-        ]);
+            'title' => 'required',
+            'bio' => 'required',
+            'image' => 'image|file|min:512'
+        ];
+
+        if ($request->slug != $student->slug) {
+            $rules['slug'] = 'required|unique:students';
+        }
+
+        $validatedData = $request->validate($rules);
+
+        if ($request->file('image')) {
+            if($request->oldImage) {
+                Storage::delete($request->oldImage);
+            }
+            $validatedData['image'] = $request->file('image')->store('post-images');
+        }
+
+        $validatedData['user_id'] = auth()->user()->id;
+        $validatedData['excerpt'] = Str::limit(strip_tags($request->bio), 200);
 
         Student::where('id', $student->id)
-                ->update([
-                    'nrp' => $request->nrp,
-                    'nama' => $request->nama,
-                    'email' => $request->email,
-                    'jurusan' => $request->jurusan
-                ]);
+                ->update($validatedData);
 
         return redirect('/students')->with('status', 'student updated successfully!');
     }
@@ -125,6 +140,9 @@ class StudentsController extends Controller
      */
     public function destroy(Student $student)
     {
+        if($student->image) {
+            Storage::delete($student->image);
+        }
         Student::destroy($student->id);
         return redirect('/students')->with('status', 'student deleted successfully!');
     }

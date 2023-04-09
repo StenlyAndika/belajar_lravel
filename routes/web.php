@@ -17,7 +17,7 @@ use App\Http\Controllers\StudentsController;
 */
 
 Route::get('/', [PagesController::class, 'home']);
-Route::get('/about', [PagesController::class, 'about']);
+Route::get('/about', [PagesController::class, 'about'])->middleware('auth');
 
 Route::get('/register', [RegisterController::class, 'index'])->middleware('guest');
 Route::post('/register', [RegisterController::class, 'store']);
@@ -26,5 +26,5 @@ Route::get('/login', [LoginController::class, 'index'])->name('login')->middlewa
 Route::post('/login', [LoginController::class, 'authenticate']);
 Route::post('/logout', [LoginController::class, 'logout']);
 
-Route::resource('/students', StudentsController::class)->middleware('auth');
+Route::resource('/students', StudentsController::class)->middleware('admin');
 Route::get('/students/checkSlug/{title}', [StudentsController::class, 'checkSlug'])->middleware('auth');

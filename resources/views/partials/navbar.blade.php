@@ -12,11 +12,11 @@
                 <li class="nav-item">
                     <a class="nav-link {{ Request::is('about') ? 'active' : '' }}" href="/about">About</a>
                 </li>
-                @auth
+                @can('admin')
                     <li class="nav-item">
                         <a class="nav-link {{ Request::is('students*') ? 'active' : '' }}" href="/students">Students</a>
                     </li>
-                @endauth
+                @endcan
             </ul>
             <ul class="navbar-nav">
             @auth

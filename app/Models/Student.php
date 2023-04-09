@@ -11,6 +11,10 @@ class Student extends Model
     use HasFactory, Sluggable;
     protected $guarded = ['id'];
 
+    public function getRouteKeyName() {
+        return 'slug';
+    }
+
     /**
      * Return the sluggable configuration array for this model.
      *
